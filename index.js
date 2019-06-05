@@ -2,6 +2,7 @@
  *  <https://github.com/sqhtiamo/webpack-sftp-client.git>
  *
  * Copyright (c) 2016-2017, Cloughzhang(Zhang Yuhang).
+ * Copyright (c) 2019, Jesus Franco Martinez.
  * Licensed under the MIT License.
  */
 
@@ -19,13 +20,13 @@ WebpackSftpClient.prototype.apply = function (compiler) {
 
     var self = this;
 
-    compiler.plugin('after-emit', function (compilation) {
+    compiler.hooks.afterEmit.tap('WebpackScpPlugin', function (compilation) {
 
         var remotePath = self.options.remotePath;
         var path = self.options.path;
         var username = self.options.username;
         var host = self.options.host;
-        var password = self.options.password;
+        var privateKey = self.options.privateKey;
         var port = self.options.port || '22';
         var verbose = self.options.verbose;
 
@@ -66,10 +67,15 @@ WebpackSftpClient.prototype.apply = function (compiler) {
 
 
         var srcPath = path;
-        var destPath = username + ':' + password + '@' + host + ':' + port + ':' + remotePath;
+        var destData = {
+            host: host,
+            port: port,
+            username: username,
+            path: remotePath,
+            privateKey: privateKey
+        };
 
         uploadByDir(srcPath, destPath, client);
-
     });
 };
 
